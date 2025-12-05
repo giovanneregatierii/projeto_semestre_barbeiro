@@ -35,7 +35,7 @@ router.get("/barbeiro/:barbeiro_id", listarPorBarbeiroEData);
 ================================ */
 
 // Listar todos os agendamentos
-router.get("/", authMiddleware, listarAgendamentos);
+router.get("/", listarAgendamentos);
 
 // Buscar agendamento por ID
 router.get('/', listarAgendamentos);
