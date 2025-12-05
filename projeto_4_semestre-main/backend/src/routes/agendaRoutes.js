@@ -13,14 +13,16 @@ import {
 import authMiddleware from "../middlewares/authMiddleware.js";
 import validate from "../validations/validate.js";
 import { agendaSchema } from "../validations/agendaSchema.js";
+import { agendaUpdateSchema } from "../validations/agendaUpdateSchema.js";
+import { cancelamentoSchema } from "../validations/cancelamentoSchema.js";
 
 const router = express.Router();
 
 /* ================================
-   ROTAS PÚBLICAS (cliente)
+  ROTAS PÚBLICAS (cliente)
 ================================ */
 
-// Criar agendamento (cliente agenda um horário)
+// Criar agendamento (cliente agenda um horário) - SEM TOKEN
 router.post("/", validate(agendaSchema), criarAgendamento);
 
 // Listar horários disponíveis
@@ -31,18 +33,16 @@ router.get("/barbeiro/:barbeiro_id", listarPorBarbeiroEData);
 
 
 /* ================================
-   ROTAS PROTEGIDAS (barbeiro/admin)
+  ROTAS PROTEGIDAS (barbeiro/admin)
 ================================ */
 
-// Listar todos os agendamentos
-router.get("/", listarAgendamentos);
+// Listar todos os agendamentos (Barbeiro/Admin)
+router.get("/", authMiddleware, listarAgendamentos);
 
-// Buscar agendamento por ID
-router.get('/', listarAgendamentos);
+// Buscar agendamento por ID (Barbeiro/Admin)
+router.get("/:id", authMiddleware, buscarPorId); // Rota CORRIGIDA: Usa /:id e função correta
 
 // Atualizar agendamento
-import { agendaUpdateSchema } from "../validations/agendaUpdateSchema.js";
-
 router.put(
   "/:id",
   authMiddleware,
@@ -51,9 +51,9 @@ router.put(
 );
 
 // Cancelar agendamento
-import { cancelamentoSchema } from "../validations/cancelamentoSchema.js";
+router.patch("/:id/cancelar", authMiddleware, validate(cancelamentoSchema), cancelarAgendamento);
 
 // Deletar agendamento
-router.patch("/:id/cancelar", authMiddleware, validate(cancelamentoSchema), cancelarAgendamento);
+router.delete("/:id", authMiddleware, deletarAgendamento); // Sugestão: DELETE é mais semântico para deletar. Se for PUT/PATCH, use o nome que a função espera.
 
 export default router;
