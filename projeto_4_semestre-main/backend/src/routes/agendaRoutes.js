@@ -4,10 +4,10 @@ import {
   listarAgendamentos,
   listarHorariosDisponiveis,
   listarPorBarbeiroEData,
-  buscarPorId,
+  buscarPorId, // Importado para a rota GET /:id
   atualizarAgendamento,
   cancelarAgendamento,
-  deletarAgendamento,
+  deletarAgendamento, // Mantido caso uses essa função
 } from "../controllers/agendaController.js";
 
 import authMiddleware from "../middlewares/authMiddleware.js";
@@ -19,30 +19,30 @@ import { cancelamentoSchema } from "../validations/cancelamentoSchema.js";
 const router = express.Router();
 
 /* ================================
-  ROTAS PÚBLICAS (cliente)
+  ROTAS PÚBLICAS (cliente) - SEM TOKEN
 ================================ */
 
-// Criar agendamento (cliente agenda um horário) - SEM TOKEN
+// Criar agendamento (POST /api/agenda)
 router.post("/", validate(agendaSchema), criarAgendamento);
 
-// Listar horários disponíveis
+// Listar todos os agendamentos (GET /api/agenda)
+router.get("/", listarAgendamentos);
+
+// Listar horários disponíveis (GET /api/agenda/horarios)
 router.get("/horarios", listarHorariosDisponiveis);
 
-// Listar horários por barbeiro + dia
+// Listar horários por barbeiro + dia (GET /api/agenda/barbeiro/:barbeiro_id)
 router.get("/barbeiro/:barbeiro_id", listarPorBarbeiroEData);
+
+// Buscar agendamento por ID (GET /api/agenda/:id) - CORRIGIDA!
+router.get("/:id", buscarPorId);
 
 
 /* ================================
-  ROTAS PROTEGIDAS (barbeiro/admin)
+  ROTAS PROTEGIDAS (barbeiro/admin) - COM TOKEN
 ================================ */
 
-// Listar todos os agendamentos (Barbeiro/Admin)
-router.get("/", authMiddleware, listarAgendamentos);
-
-// Buscar agendamento por ID (Barbeiro/Admin)
-router.get("/:id", authMiddleware, buscarPorId); // Rota CORRIGIDA: Usa /:id e função correta
-
-// Atualizar agendamento
+// Atualizar agendamento (PUT /api/agenda/:id)
 router.put(
   "/:id",
   authMiddleware,
@@ -50,10 +50,11 @@ router.put(
   atualizarAgendamento
 );
 
-// Cancelar agendamento
+// Cancelar agendamento (PATCH /api/agenda/:id/cancelar)
 router.patch("/:id/cancelar", authMiddleware, validate(cancelamentoSchema), cancelarAgendamento);
 
-// Deletar agendamento
-router.delete("/:id", authMiddleware, deletarAgendamento); // Sugestão: DELETE é mais semântico para deletar. Se for PUT/PATCH, use o nome que a função espera.
+// Deletar agendamento (DELETE /api/agenda/:id) - Se existir
+router.delete("/:id", authMiddleware, deletarAgendamento); 
+
 
 export default router;
