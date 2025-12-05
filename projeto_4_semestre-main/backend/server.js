@@ -9,6 +9,7 @@ import agendaRoutes from "./src/routes/agendaRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 import jwt from "jsonwebtoken";
+import Agenda from "./src/models/Agenda.js"; // <-- ADICIONADO AQUI
 
 // ==================================================
 // 1) Carregar variáveis de ambiente
@@ -58,6 +59,32 @@ app.get("/get-token", (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ erro: "Falha ao gerar token", detalhes: err.message });
+  }
+});
+
+// ==================================================
+// NOVA ROTA: LISTAR AGENDAMENTOS DIRETO NO NAVEGADOR
+// ==================================================
+app.get("/agendamentos", async (req, res) => {
+  try {
+    const lista = await Agenda.find().sort({ data: 1, hora: 1 });
+
+    const html = `
+      <h1>Lista de Agendamentos</h1>
+      <ul>
+        ${lista.map(a => `
+          <li>
+            <strong>${a.data} ${a.hora}</strong> — 
+            ${a.nome} — ${a.servico}
+          </li>
+        `).join("")}
+      </ul>
+    `;
+
+    res.send(html);
+
+  } catch (err) {
+    res.status(500).send("Erro ao carregar agenda: " + err.message);
   }
 });
 
