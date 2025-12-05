@@ -38,7 +38,7 @@ router.get("/barbeiro/:barbeiro_id", listarPorBarbeiroEData);
 router.get("/", authMiddleware, listarAgendamentos);
 
 // Buscar agendamento por ID
-router.get("/:id", authMiddleware, buscarPorId);
+router.get('/', listarAgendamentos);
 
 // Atualizar agendamento
 import { agendaUpdateSchema } from "../validations/agendaUpdateSchema.js";
