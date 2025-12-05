@@ -9,7 +9,9 @@ import agendaRoutes from "./src/routes/agendaRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 import jwt from "jsonwebtoken";
-import Agenda from "./src/models/Agenda.js"; // <-- ADICIONADO AQUI
+
+// IMPORTAÇÃO CORRETA DO MODEL
+import Agenda from "./src/models/AgendamentoModel.js";
 
 // ==================================================
 // 1) Carregar variáveis de ambiente
