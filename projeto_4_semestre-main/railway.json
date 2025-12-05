@@ -1,7 +1,0 @@
-{
-  "deploy": {
-    "projectRoot": "backend",
-    "startCommand": "npm start"
-  }
-}
- 
