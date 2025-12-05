@@ -8,32 +8,62 @@ import logger from "./src/config/logger.js";
 import agendaRoutes from "./src/routes/agendaRoutes.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
+import jwt from "jsonwebtoken";
 
+// ==================================================
 // 1) Carregar variáveis de ambiente
+// ==================================================
 dotenv.config();
 
 console.log("### DEBUG JWT_SECRET =", JSON.stringify(process.env.JWT_SECRET));
 
-// 2) Conectar ao MongoDB (APENAS UMA VEZ)
+// ==================================================
+// 2) Conectar ao MongoDB (só uma vez!)
+// ==================================================
 connectDB();
 
+// ==================================================
+// 3) Iniciar app
+// ==================================================
 const app = express();
 app.use(express.json());
 
-// ROTA DE TESTE DAS VARIÁVEIS
+// ==================================================
+// 4) Segurança — CORS + Helmet
+// ==================================================
+app.use(cors({ origin: "*" }));
+app.use(helmet());
+
+// ==================================================
+// 5) Rota para testar variáveis de ambiente
+// ==================================================
 app.get("/test-env", (req, res) => {
   res.json({ JWT_SECRET: process.env.JWT_SECRET });
 });
 
-// CORS + Helmet
-app.use(cors({ origin: "*" }));
-app.use(helmet());
+// ==================================================
+// NOVA ROTA: Gerar token sem login (para teste)
+// ==================================================
+app.get("/get-token", (req, res) => {
+  try {
+    const token = jwt.sign(
+      { teste: "ok" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-// 4) Segurança — CORS + Helmet
-app.use(cors({ origin: "*" }));
-app.use(helmet());
+    res.json({
+      mensagem: "Token gerado com sucesso!",
+      token,
+    });
+  } catch (err) {
+    res.status(500).json({ erro: "Falha ao gerar token", detalhes: err.message });
+  }
+});
 
-// 5) Rotas públicas
+// ==================================================
+// 6) Rotas públicas
+// ==================================================
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date() });
 });
@@ -57,11 +87,16 @@ app.get("/", (req, res) => {
   res.send("API Calendário/Barbearia rodando!");
 });
 
+// ==================================================
 // Middleware Global de Erros
+// ==================================================
 app.use(errorHandler);
 
-// 9) Iniciar Servidor
+// ==================================================
+// 7) Iniciar Servidor
+// ==================================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   logger.info(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
